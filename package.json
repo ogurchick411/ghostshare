@@ -1,0 +1,19 @@
+{
+  "name": "ghostshare",
+  "version": "1.0.0",
+  "description": "A zero-knowledge platform for anonymous file and secret sharing",
+  "main": "src/server/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server/index.js"
+  },
+  "keywords": [
+    "encryption",
+    "zero-knowledge",
+    "steganography",
+    "security",
+    "privacy"
+  ],
+  "author": "ogurchick411",
+  "license": "MIT"
+}
