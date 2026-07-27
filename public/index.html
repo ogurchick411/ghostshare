@@ -14,9 +14,9 @@
     </header>
 
     <main>
-      <section class="card" id="encrypt-section">
+      <section class="card" id="createSection">
         <h2>New Secret</h2>
-        <textarea id="secret-input" placeholder="Type your secret message here..."></textarea>
+        <textarea id="secretInput" placeholder="Type your secret message here..."></textarea>
         
         <div class="controls">
           <label for="ttl-select">Self-destruct in:</label>
@@ -25,25 +25,24 @@
             <option value="3600" selected>1 hour</option>
             <option value="86400">24 hours</option>
           </select>
-          <button id="encrypt-btn">Encrypt & Create Link</button>
+          <button id="shareBtn">Encrypt & Create Link</button>
         </div>
 
-        <div id="result-box" class="hidden">
+        <div id="resultSection" class="hidden">
           <p>Shareable One-Time Link:</p>
-          <input type="text" id="share-link" readonly>
-          <button id="copy-btn">Copy Link</button>
+          <input type="text" id="shareUrl" readonly>
+          <button id="copyBtn">Copy Link</button>
         </div>
       </section>
 
-      <section class="card hidden" id="decrypt-section">
+      <section class="card hidden" id="viewSection">
         <h2>Decrypt Secret</h2>
         <p class="warning">Warning: Fetching this secret will destroy it from the server permanently</p>
-        <button id="decrypt-btn">Decrypt & Read</button>
-        <div id="decrypted-content" class="hidden"></div>
+        <div id="secretDisplay"></div>
       </section>
     </main>
   </div>
 
-  <script type="module" src="../src/client/main.js"></script>
+  <script type="module" src="/src/client/app.js"></script>
 </body>
 </html>
