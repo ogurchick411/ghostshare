@@ -1,3 +1,5 @@
+import { wipeDOMElement } from '../crypto/cleanup.js';
+import { triggerSelfDestructAnimation } from './animator.js';
 import { generateMasterKey, exportKeyToHash, importKeyFromHash } from '../crypto/keys.js';
 import { encryptMessage, decryptMessage } from '../crypto/cipher.js';
 
@@ -5,6 +7,7 @@ const secretInput = document.getElementById('secretInput');
 const shareBtn = document.getElementById('shareBtn');
 const resultSection = document.getElementById('resultSection');
 const shareUrlInput = document.getElementById('shareUrl');
+const copyBtn = document.getElementById('copyBtn');
 
 const secretDisplay = document.getElementById('secretDisplay');
 const createSection = document.getElementById('createSection');
@@ -56,15 +59,19 @@ async function handleViewShare() {
   const decrypted = await decryptMessage(payload, key);
 
   secretDisplay.textContent = decrypted;
+
+  setTimeout(() => {
+    triggerSelfDestructAnimation(secretDisplay, () => {
+      wipeDOMElement(secretDisplay);
+      secretDisplay.textContent = 'Secret destroyed permanently from client memory.';
+      secretDisplay.style.visibility = 'visible';
+    });
+  }, 10000);
 }
 
 if (shareBtn) {
   shareBtn.addEventListener('click', handleCreateShare);
 }
-
-window.addEventListener('DOMContentLoaded', handleViewShare);
-
-const copyBtn = document.getElementById('copyBtn');
 
 if (copyBtn) {
   copyBtn.addEventListener('click', async () => {
@@ -82,3 +89,5 @@ if (copyBtn) {
     }
   });
 }
+
+window.addEventListener('DOMContentLoaded', handleViewShare);
