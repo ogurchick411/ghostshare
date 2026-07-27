@@ -93,4 +93,21 @@ button:hover {
 .warning {
   color: var(--danger-color);
   font-size: 0.85rem;
+} 
+
+#secretDisplay {
+  background: #11111b;
+  border: 1px solid #313244;
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: monospace;
+  color: #a6adc8;
+  word-break: break-all;
+  margin-top: 1rem;
+}
+
+.warning {
+  color: #f38ba8;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
 }
