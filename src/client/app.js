@@ -63,3 +63,22 @@ if (shareBtn) {
 }
 
 window.addEventListener('DOMContentLoaded', handleViewShare);
+
+const copyBtn = document.getElementById('copyBtn');
+
+if (copyBtn) {
+  copyBtn.addEventListener('click', async () => {
+    if (!shareUrlInput.value) return;
+    
+    try {
+      await navigator.clipboard.writeText(shareUrlInput.value);
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyBtn.textContent = originalText;
+      }, 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  });
+}
