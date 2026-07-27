@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostShare — Zero-Knowledge File & Secret Sharing</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>GHOSTSHARE</h1>
+      <p class="subtitle">Client-side encrypted ephemeral secret storage</p>
+    </header>
+
+    <main>
+      <section class="card" id="encrypt-section">
+        <h2>New Secret</h2>
+        <textarea id="secret-input" placeholder="Type your secret message here..."></textarea>
+        
+        <div class="controls">
+          <label for="ttl-select">Self-destruct in:</label>
+          <select id="ttl-select">
+            <option value="600">10 minutes</option>
+            <option value="3600" selected>1 hour</option>
+            <option value="86400">24 hours</option>
+          </select>
+          <button id="encrypt-btn">Encrypt & Create Link</button>
+        </div>
+
+        <div id="result-box" class="hidden">
+          <p>Shareable One-Time Link:</p>
+          <input type="text" id="share-link" readonly>
+          <button id="copy-btn">Copy Link</button>
+        </div>
+      </section>
+
+      <section class="card hidden" id="decrypt-section">
+        <h2>Decrypt Secret</h2>
+        <p class="warning">Warning: Fetching this secret will destroy it from the server permanently</p>
+        <button id="decrypt-btn">Decrypt & Read</button>
+        <div id="decrypted-content" class="hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="../src/client/main.js"></script>
+</body>
+</html>
