@@ -3,46 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GhostShare — Zero-Knowledge File & Secret Sharing</title>
+  <title>GhostShare</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>GHOSTSHARE</h1>
-      <p class="subtitle">Client-side encrypted ephemeral secret storage</p>
+    <header class="header">
+      <h1 class="logo-title">GhostShare</h1>
+      <p class="subtitle">Secure, encrypted, self-destructing notes</p>
     </header>
 
-    <main>
-      <section class="card" id="createSection">
-        <h2>New Secret</h2>
-        <textarea id="secretInput" placeholder="Type your secret message here..."></textarea>
+    <main class="card">
+      <div id="create-view">
+        <textarea id="secret-input" placeholder="Passcode, note, or secret key..."></textarea>
         
         <div class="controls">
-          <label for="ttl-select">Self-destruct in:</label>
           <select id="ttl-select">
-            <option value="600">10 minutes</option>
-            <option value="3600" selected>1 hour</option>
-            <option value="86400">24 hours</option>
+            <option value="3600">Self-destruct in 1 hour</option>
+            <option value="86400">Self-destruct in 24 hours</option>
+            <option value="604800">Self-destruct in 7 days</option>
           </select>
-          <button id="shareBtn">Encrypt & Create Link</button>
+
+          <button class="btn-primary" id="create-btn">Create Link</button>
         </div>
 
-        <div id="resultSection" class="hidden">
-          <p>Shareable One-Time Link:</p>
-          <input type="text" id="shareUrl" readonly>
-          <button id="copyBtn">Copy Link</button>
+        <div id="result-container" class="result-box hidden">
+          <input type="text" id="share-url" readonly />
+          <button class="btn-primary" id="copy-btn">Copy Link</button>
         </div>
-      </section>
+      </div>
 
-      <section class="card hidden" id="viewSection">
-        <h2>Decrypt Secret</h2>
-        <p class="warning">Warning: Fetching this secret will destroy it from the server permanently</p>
-        <div id="secretDisplay"></div>
-      </section>
+      <div id="read-view" class="hidden">
+        <textarea id="decrypted-output" readonly placeholder="Decrypting payload..."></textarea>
+      </div>
     </main>
   </div>
 
-  <script type="module" src="/src/client/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
