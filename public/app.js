@@ -50,17 +50,62 @@ async function decryptMessage(payload, key) {
 
   return new TextDecoder().decode(decrypted);
 }
- 
+
+// Elements for Tabs
+const tabLink = document.getElementById('tab-link');
+const tabHide = document.getElementById('tab-hide');
+const tabExtract = document.getElementById('tab-extract');
+
+const textMode = document.getElementById('text-mode');
+const hideMode = document.getElementById('hide-mode');
+const extractMode = document.getElementById('extract-mode');
+
+// Secret Link Elements
 const secretInput = document.getElementById('secret-input');
 const ttlSelect = document.getElementById('ttl-select');
 const createBtn = document.getElementById('create-btn');
 const resultContainer = document.getElementById('result-container');
+const stegoResult = document.getElementById('stego-result');
+const extractedResult = document.getElementById('extracted-result');
 const shareUrlInput = document.getElementById('share-url');
 const copyBtn = document.getElementById('copy-btn');
 const createView = document.getElementById('create-view');
 const readView = document.getElementById('read-view');
 const decryptedOutput = document.getElementById('decrypted-output');
- 
+
+// Tab Navigation Handler
+function hideAllModes() {
+  textMode.classList.add('hidden');
+  hideMode.classList.add('hidden');
+  extractMode.classList.add('hidden');
+  resultContainer.classList.add('hidden');
+  stegoResult.classList.add('hidden');
+  extractedResult.classList.add('hidden');
+  tabLink.classList.remove('active');
+  tabHide.classList.remove('active');
+  tabExtract.classList.remove('active');
+}
+
+if (tabLink && tabHide && tabExtract) {
+  tabLink.addEventListener('click', () => {
+    hideAllModes();
+    tabLink.classList.add('active');
+    textMode.classList.remove('hidden');
+  });
+
+  tabHide.addEventListener('click', () => {
+    hideAllModes();
+    tabHide.classList.add('active');
+    hideMode.classList.remove('hidden');
+  });
+
+  tabExtract.addEventListener('click', () => {
+    hideAllModes();
+    tabExtract.classList.add('active');
+    extractMode.classList.remove('hidden');
+  });
+}
+
 if (createBtn) {
   createBtn.addEventListener('click', async () => {
     const text = secretInput.value.trim();
@@ -87,6 +132,7 @@ if (createBtn) {
       const fullUrl = `${window.location.origin}/#id=${id}&key=${encodeURIComponent(rawKey)}`;
       shareUrlInput.value = fullUrl;
       resultContainer.classList.remove('hidden');
+      secretInput.value = '';
     } catch (err) {
       alert('Error: ' + err.message);
     } finally {
@@ -95,7 +141,7 @@ if (createBtn) {
     }
   });
 }
- 
+
 if (copyBtn) {
   copyBtn.addEventListener('click', () => {
     shareUrlInput.select();
@@ -104,7 +150,7 @@ if (copyBtn) {
     setTimeout(() => { copyBtn.innerText = 'Copy Link'; }, 2000);
   });
 }
- 
+
 async function handleRoute() {
   const hash = window.location.hash.substring(1);
   if (!hash) return;
