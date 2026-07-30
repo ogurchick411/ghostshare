@@ -1,17 +1,27 @@
 export function startCountdown(durationSeconds, onTick, onComplete) {
-  let remaining = durationSeconds;
+  let remaining = Math.max(0, durationSeconds);
   
-  onTick(remaining);
+  if (typeof onTick === 'function') {
+    onTick(remaining);
+  }
   
   const interval = setInterval(() => {
     remaining--;
-    onTick(remaining);
+    
+    if (typeof onTick === 'function') {
+      onTick(remaining);
+    }
     
     if (remaining <= 0) {
       clearInterval(interval);
-      if (onComplete) onComplete();
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
     }
   }, 1000);
 
-  return interval;
+  return {
+    stop: () => clearInterval(interval),
+    getRemaining: () => remaining
+  };
 }
