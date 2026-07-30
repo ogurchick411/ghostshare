@@ -2,6 +2,7 @@ import { wipeDOMElement } from '../crypto/cleanup.js';
 import { triggerSelfDestructAnimation } from './animator.js';
 import { generateMasterKey, exportKeyToHash, importKeyFromHash } from '../crypto/keys.js';
 import { encryptMessage, decryptMessage } from '../crypto/cipher.js';
+import { validateSecretInput } from '../utils/validation.js';
 
 const secretInput = document.getElementById('secretInput');
 const ttlSelect = document.getElementById('ttl-select');
@@ -16,24 +17,39 @@ const viewSection = document.getElementById('viewSection');
 
 async function handleCreateShare() {
   const text = secretInput.value.trim();
-  if (!text) return;
+  
+  const validation = validateSecretInput(text);
+  if (!validation.valid) {
+    alert(validation.error);
+    return;
+  }
 
-  const key = await generateMasterKey();
-  const encrypted = await encryptMessage(text, key);
-  const keyHash = await exportKeyToHash(key);
-  const id = Math.random().toString(36).substring(2, 10);
-  const ttl = parseInt(ttlSelect.value, 10) || 3600;
+  shareBtn.disabled = true;
+  shareBtn.textContent = 'Encrypting...';
 
-  const response = await fetch('/api/store', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, payload: encrypted, ttl })
-  });
+  try {
+    const key = await generateMasterKey();
+    const encrypted = await encryptMessage(text, key);
+    const keyHash = await exportKeyToHash(key);
+    const id = Math.random().toString(36).substring(2, 10);
+    const ttl = parseInt(ttlSelect.value, 10) || 3600;
 
-  if (response.ok) {
-    const shareUrl = `${window.location.origin}/#id=${id}&key=${keyHash}`;
-    shareUrlInput.value = shareUrl;
-    resultSection.classList.remove('hidden');
+    const response = await fetch('/api/store', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, payload: encrypted, ttl })
+    });
+
+    if (response.ok) {
+      const shareUrl = `${window.location.origin}/#id=${id}&key=${keyHash}`;
+      shareUrlInput.value = shareUrl;
+      resultSection.classList.remove('hidden');
+    }
+  } catch (err) {
+    console.error('Failed to share secret:', err);
+  } finally {
+    shareBtn.disabled = false;
+    shareBtn.textContent = 'Encrypt & Create Link';
   }
 }
 
