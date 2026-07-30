@@ -116,6 +116,63 @@ textarea {
   margin-bottom: 12px;
 }
 
+.file-picker {
+  margin-bottom: 12px;
+}
+
+.file-input-hidden {
+  display: none;
+}
+
+.file-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px;
+  background-color: var(--input-bg);
+  color: var(--text-secondary);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px dashed var(--border-color);
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.file-box:hover {
+  background-color: rgba(118, 118, 128, 0.15);
+}
+
+.file-box span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85%;
+}
+
+.clear-file {
+  background: rgba(118, 118, 128, 0.25);
+  border: none;
+  color: var(--text-primary);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clear-file:hover {
+  background: rgba(255, 59, 48, 0.8);
+  color: #fff;
+}
+
 .controls {
   display: flex;
   flex-direction: column;
@@ -147,6 +204,11 @@ select {
   text-align: center;
   text-decoration: none;
   display: block;
+  transition: opacity 0.2s ease;
+}
+
+.btn-primary:active {
+  opacity: 0.8;
 }
 
 .result-box {
