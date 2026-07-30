@@ -1,8 +1,12 @@
 export function hideDataInPixels(imageData, binaryPayload) {
+  if (!imageData || !binaryPayload) {
+    throw new Error("Invalid arguments: imageData and binaryPayload are required");
+  }
+
   const data = imageData.data;
   const payloadLength = binaryPayload.length;
   
-  if (payloadLength * 8 > data.length / 4 * 3) {
+  if (payloadLength * 8 > (data.length / 4) * 3) {
     throw new Error("Payload is too large for this image capacity");
   }
 
@@ -24,6 +28,10 @@ export function hideDataInPixels(imageData, binaryPayload) {
 }
 
 export function extractDataFromPixels(imageData, payloadLength) {
+  if (!imageData || !payloadLength) {
+    throw new Error("Invalid arguments: imageData and payloadLength are required");
+  }
+
   const data = imageData.data;
   const totalBits = payloadLength * 8;
   const result = new Uint8Array(payloadLength);
