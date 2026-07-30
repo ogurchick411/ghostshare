@@ -151,7 +151,6 @@ function extractDataFromPixels(imageData) {
   return new TextDecoder().decode(payload);
 }
 
-// Elements for Tabs
 const tabLink = document.getElementById('tab-link');
 const tabHide = document.getElementById('tab-hide');
 const tabExtract = document.getElementById('tab-extract');
@@ -160,12 +159,12 @@ const textMode = document.getElementById('text-mode');
 const hideMode = document.getElementById('hide-mode');
 const extractMode = document.getElementById('extract-mode');
 
-// Secret Link Elements
 const secretInput = document.getElementById('secret-input');
-const ttlSelect = document.getElementById('ttl-select');
+const hoursSelect = document.getElementById('hours-select');
+const minutesSelect = document.getElementById('minutes-select');
+const secondsSelect = document.getElementById('seconds-select');
 const createBtn = document.getElementById('create-btn');
 
-// Stego Hide Elements
 const stegoInput = document.getElementById('stego-input');
 const imageInput = document.getElementById('image-input');
 const imageLabel = document.getElementById('image-label');
@@ -173,7 +172,6 @@ const clearImageBtn = document.getElementById('clear-image-btn');
 const stegoBtn = document.getElementById('stego-btn');
 const downloadImage = document.getElementById('download-image');
 
-// Stego Extract Elements
 const extractInput = document.getElementById('extract-input');
 const extractLabel = document.getElementById('extract-label');
 const clearExtractBtn = document.getElementById('clear-extract-btn');
@@ -189,7 +187,35 @@ const createView = document.getElementById('create-view');
 const readView = document.getElementById('read-view');
 const decryptedOutput = document.getElementById('decrypted-output');
 
-// Tab Navigation Handler
+function initTimerSelects() {
+  if (!hoursSelect || !minutesSelect || !secondsSelect) return;
+
+  for (let i = 0; i <= 24; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.innerText = String(i).padStart(2, '0');
+    hoursSelect.appendChild(opt);
+  }
+
+  for (let i = 0; i < 60; i++) {
+    const optM = document.createElement('option');
+    optM.value = i;
+    optM.innerText = String(i).padStart(2, '0');
+    minutesSelect.appendChild(optM);
+
+    const optS = document.createElement('option');
+    optS.value = i;
+    optS.innerText = String(i).padStart(2, '0');
+    secondsSelect.appendChild(optS);
+  }
+
+  hoursSelect.value = 0;
+  minutesSelect.value = 0;
+  secondsSelect.value = 15;
+}
+
+initTimerSelects();
+
 function hideAllModes() {
   textMode.classList.add('hidden');
   hideMode.classList.add('hidden');
@@ -222,7 +248,6 @@ if (tabLink && tabHide && tabExtract) {
   });
 }
 
-// File Pickers logic
 if (imageInput) {
   imageInput.addEventListener('change', () => {
     if (imageInput.files[0]) {
@@ -266,6 +291,13 @@ if (createBtn) {
     const text = secretInput.value.trim();
     if (!text) return alert('Enter a note before creating a link.');
 
+    const h = parseInt(hoursSelect.value, 10) || 0;
+    const m = parseInt(minutesSelect.value, 10) || 0;
+    const s = parseInt(secondsSelect.value, 10) || 0;
+
+    const ttl = (h * 3600) + (m * 60) + s;
+    if (ttl <= 0) return alert('Please set a self-destruct time greater than 0.');
+
     createBtn.disabled = true;
     createBtn.innerText = 'Encrypting...';
 
@@ -274,7 +306,6 @@ if (createBtn) {
       const rawKey = await exportKey(key);
       const encrypted = await encryptMessage(text, key);
       const id = Math.random().toString(36).substring(2) + Date.now().toString(36);
-      const ttl = parseInt(ttlSelect.value, 10);
 
       const res = await fetch('/api/store', {
         method: 'POST',
