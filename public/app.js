@@ -51,6 +51,48 @@ async function decryptMessage(payload, key) {
   return new TextDecoder().decode(decrypted);
 }
 
+function hideDataInPixels(imageData, messageText) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(messageText);
+  const dataLength = data.length;
+
+  const header = new Uint8Array(4);
+  new DataView(header.buffer).setUint32(0, dataLength, false);
+
+  const fullPayload = new Uint8Array(header.length + data.length);
+  fullPayload.set(header, 0);
+  fullPayload.set(data, header.length);
+
+  const pixels = imageData.data;
+  const maxBytes = Math.floor((pixels.length / 4) * 3 / 8);
+
+  if (fullPayload.length > maxBytes) {
+    throw new Error('Image too small for this message.');
+  }
+
+  let byteIdx = 0;
+  let bitIdx = 0;
+
+  for (let i = 0; i < pixels.length; i++) {
+    if ((i + 1) % 4 === 0) continue;
+
+    if (byteIdx < fullPayload.length) {
+      const bit = (fullPayload[byteIdx] >> (7 - bitIdx)) & 1;
+      pixels[i] = (pixels[i] & 0xFE) | bit;
+
+      bitIdx++;
+      if (bitIdx === 8) {
+        bitIdx = 0;
+        byteIdx++;
+      }
+    } else {
+      break;
+    }
+  }
+
+  return imageData;
+}
+
 // Elements for Tabs
 const tabLink = document.getElementById('tab-link');
 const tabHide = document.getElementById('tab-hide');
@@ -64,6 +106,15 @@ const extractMode = document.getElementById('extract-mode');
 const secretInput = document.getElementById('secret-input');
 const ttlSelect = document.getElementById('ttl-select');
 const createBtn = document.getElementById('create-btn');
+
+// Stego Elements
+const stegoInput = document.getElementById('stego-input');
+const imageInput = document.getElementById('image-input');
+const imageLabel = document.getElementById('image-label');
+const clearImageBtn = document.getElementById('clear-image-btn');
+const stegoBtn = document.getElementById('stego-btn');
+const downloadImage = document.getElementById('download-image');
+
 const resultContainer = document.getElementById('result-container');
 const stegoResult = document.getElementById('stego-result');
 const extractedResult = document.getElementById('extracted-result');
@@ -106,6 +157,25 @@ if (tabLink && tabHide && tabExtract) {
   });
 }
 
+// Image File Picker & Clear logic
+if (imageInput) {
+  imageInput.addEventListener('change', () => {
+    if (imageInput.files[0]) {
+      imageLabel.innerText = imageInput.files[0].name;
+      clearImageBtn.classList.remove('hidden');
+    }
+  });
+}
+
+if (clearImageBtn) {
+  clearImageBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    imageInput.value = '';
+    imageLabel.innerText = 'Choose PNG Image';
+    clearImageBtn.classList.add('hidden');
+  });
+}
+
 if (createBtn) {
   createBtn.addEventListener('click', async () => {
     const text = secretInput.value.trim();
@@ -138,6 +208,59 @@ if (createBtn) {
     } finally {
       createBtn.disabled = false;
       createBtn.innerText = 'Create Link';
+    }
+  });
+}
+
+if (stegoBtn) {
+  stegoBtn.addEventListener('click', async () => {
+    const text = stegoInput.value.trim();
+    const file = imageInput.files[0];
+
+    if (!text) return alert('Enter secret text first.');
+    if (!file) return alert('Select a PNG image.');
+
+    stegoBtn.disabled = true;
+    stegoBtn.innerText = 'Processing...';
+
+    try {
+      const key = await generateKey();
+      const encrypted = await encryptMessage(text, key);
+      const rawKey = await exportKey(key);
+      const payloadString = JSON.stringify({ payload: encrypted, key: rawKey });
+
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, img.width, img.height);
+          const processedData = hideDataInPixels(imageData, payloadString);
+          ctx.putImageData(processedData, 0, 0);
+
+          downloadImage.href = canvas.toDataURL('image/png');
+          stegoResult.classList.remove('hidden');
+          stegoBtn.disabled = false;
+          stegoBtn.innerText = 'Process & Download Image';
+
+          stegoInput.value = '';
+          imageInput.value = '';
+          imageLabel.innerText = 'Choose PNG Image';
+          clearImageBtn.classList.add('hidden');
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      alert('Error: ' + err.message);
+      stegoBtn.disabled = false;
+      stegoBtn.innerText = 'Process & Download Image';
     }
   });
 }
