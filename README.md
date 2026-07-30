@@ -1,69 +1,68 @@
 # GhostShare
 
-Client-side encrypted ephemeral secret storage and sharing platform.
+> Zero-Knowledge, Client-Side Encrypted Ephemeral Storage & Steganography Engine
 
-## Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-18%2B-blue.svg)](https://nodejs.org/)
+[![Crypto](https://img.shields.io/badge/Security-AES--GCM%20256--bit-orange.svg)]()
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Native)-success.svg)]()
 
-GhostShare is a zero-knowledge application designed for secure, temporary message and secret exchange. Encryption and decryption processes are performed entirely on the client side using the Web Crypto API, ensuring that plain text data never reaches the server.
+GhostShare is a privacy-focused web application designed for sharing sensitive data, notes, and secrets without leaving a trace. Built with native Web Crypto APIs and zero external dependencies.
 
-## Key Features
+---
 
-- End-to-End Encryption: Utilizes AES-GCM 256-bit algorithm via native browser APIs.
-- Client-Side Key Generation: Cryptographic keys are generated locally and embedded in URL fragments (hashes), which are never transmitted in HTTP requests.
-- Ephemeral Data Storage: Messages are stored in-memory on the server with configurable Time-To-Live (TTL) parameters.
-- Single-Read Destruction: Fetched payloads are automatically purged from server memory upon retrieval.
-- Data Sanitization: Automatic DOM and memory buffer zeroing after display expiration.
-- Steganography Support: Integrated modules for least-significant-bit (LSB) image payload embedding.
+## Key Highlights
 
-## Project Structure
+* **End-to-End Client Encryption:** Plaintext never leaves the browser. Encrypted via AES-GCM 256-bit.
+* **Zero-Knowledge Architecture:** Decryption keys are embedded strictly in the URL hash (`#key=...`). The server never sees or logs your keys.
+* **One-Time Self-Destruct:** Payloads are instantly deleted from server memory upon the first read request.
+* **Pixel Steganography:** Built-in LSB (Least Significant Bit) engine to conceal encrypted payloads inside image pixels.
+* **Zero-Dependency Native Server:** Extremely lightweight Node.js HTTP core running without third-party packages.
 
-public/
-├── index.html       # Application markup
-└── style.css        # Core styling rules
-src/
-├── client/
-│   ├── animator.js  # Visual canvas rendering helpers
-│   ├── app.js       # Main application interface logic
-│   └── timer.js     # Expiration timer manager
-├── crypto/
-│   ├── cipher.js    # AES-GCM encryption/decryption routines
-│   ├── cleanup.js   # Memory and DOM wiping functions
-│   ├── keys.js      # Key generation, import, and export utilities
-│   └── steganography.js # LSB image data encoding/decoding
-├── server/
-│   └── index.js     # Native Node.js HTTP API server
-└── utils/
-    ├── encoding.js  # Binary and Base64 transformation helpers
-    └── validation.js# Input sanitization and bounds checking
-package.json
+---
 
-## API Endpoints
+## Quick Start
 
-### POST /api/store
-Stores an encrypted payload in server memory.
-- Body Parameters:
-  - id (string): Unique identifier for the payload.
-  - payload (object): Encrypted data object containing ciphertext and initialization vector (IV).
-  - ttl (number): Lifetime in seconds before automatic purging.
+### Prerequisites
+Make sure you have Node.js 18+ installed on your system
 
-### GET /api/fetch/:id
-Retrieves and immediately deletes the requested payload from server memory.
-- Returns: JSON object containing the encrypted payload.
-- Status Codes:
-  - 200 OK: Payload found and returned.
-  - 404 Not Found: Payload expired or already destroyed.
+### Running Locally
 
-## Usage
+1. Clone the repository:
+   git clone https://github.com/ogurchick411/ghostshare.git
+   cd ghostshare
 
-1. Start the HTTP server:
+2. Start the server:
    npm start
 
-2. Open http://localhost:3000 in a Web Crypto supported browser.
+3. Open http://localhost:3000 in your browser
+
+---
+
+## Tech Stack & Architecture
+
+* **Frontend:** Vanilla JS (ES Modules), HTML5 Canvas, Modern CSS Grid/Variables.
+* **Cryptography:** Native `window.crypto.subtle` (AES-GCM, Raw Key Import/Export, LSB Steganography).
+* **Backend:** Native Node.js `http` module with in-memory TTL map state.
+
+---
 
 ## Security Model
 
-The server acts solely as a temporary key-value storage engine. Because decryption keys are appended as URL hash fragments (#id=...&key=...), they remain strictly within the client context and are not accessible to network intermediaries or server logs.
+[ Browser / Client ]                         [ Server Node.js ]
+1. Generates AES-256 Key                      
+2. Encrypts Payload locally                   
+3. Sends Ciphertext only -------------------> Stores in Memory (Map)
+4. Key appended to URL Hash (#key)            
+                                              Reads & Immediately 
+5. Receiver decrypts via Hash Key <---------- Deletes from Memory
+
+---
 
 ## License
 
-MIT License
+Distributed under the MIT License. See LICENSE for more information.
+
+---
+
+If you find this project useful or interesting, please consider leaving a Star on GitHub!
