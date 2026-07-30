@@ -10,4 +10,7 @@ export function wipeDOMElement(element) {
   if (!element) return;
   element.textContent = '';
   element.innerText = '';
+  if (element.value !== undefined) {
+    element.value = '';
+  }
 }
