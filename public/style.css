@@ -86,13 +86,26 @@ button:hover {
   background: #2ea043;
 }
 
+button:disabled {
+  background: #21262d;
+  border-color: var(--border-color);
+  color: #8b949e;
+  cursor: not-allowed;
+}
+
+textarea:focus, select:focus, input:focus {
+  outline: none;
+  border-color: var(--accent-color);
+}
+
 .hidden {
   display: none !important;
 }
 
 .warning {
-  color: var(--danger-color);
+  color: #f38ba8;
   font-size: 0.85rem;
+  margin-bottom: 0.5rem;
 } 
 
 #secretDisplay {
@@ -104,10 +117,4 @@ button:hover {
   color: #a6adc8;
   word-break: break-all;
   margin-top: 1rem;
-}
-
-.warning {
-  color: #f38ba8;
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
 }
