@@ -4,6 +4,7 @@ import { generateMasterKey, exportKeyToHash, importKeyFromHash } from '../crypto
 import { encryptMessage, decryptMessage } from '../crypto/cipher.js';
 
 const secretInput = document.getElementById('secretInput');
+const ttlSelect = document.getElementById('ttl-select');
 const shareBtn = document.getElementById('shareBtn');
 const resultSection = document.getElementById('resultSection');
 const shareUrlInput = document.getElementById('shareUrl');
@@ -21,11 +22,12 @@ async function handleCreateShare() {
   const encrypted = await encryptMessage(text, key);
   const keyHash = await exportKeyToHash(key);
   const id = Math.random().toString(36).substring(2, 10);
+  const ttl = parseInt(ttlSelect.value, 10) || 3600;
 
   const response = await fetch('/api/store', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ id, payload: encrypted, ttl: 3600 })
+    body: JSON.stringify({ id, payload: encrypted, ttl })
   });
 
   if (response.ok) {
