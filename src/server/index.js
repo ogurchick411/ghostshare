@@ -3,6 +3,10 @@ import http from "http";
 const PORT = process.env.PORT || 3000;
 const store = new Map();
 
+function isExpired(expireAt) {
+  return Date.now() > expireAt;
+}
+
 const server = http.createServer((req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -23,7 +27,7 @@ const server = http.createServer((req, res) => {
         
         if (!id || !payload) {
           res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Missing required fields" }));
+          res.end(JSON.stringify({ error: "Missing required fields: id and payload" }));
           return;
         }
 
@@ -34,7 +38,7 @@ const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ success: true, id }));
       } catch (err) {
         res.writeHead(400, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Invalid JSON payload" }));
+        res.end(JSON.stringify({ error: "Invalid JSON payload format" }));
       }
     });
     return;
@@ -50,7 +54,7 @@ const server = http.createServer((req, res) => {
       return;
     }
 
-    if (Date.now() > data.expireAt) {
+    if (isExpired(data.expireAt)) {
       store.delete(id);
       res.writeHead(404, { "Content-Type": "application/json" });
       res.end(JSON.stringify({ error: "Payload has expired" }));
@@ -69,9 +73,8 @@ const server = http.createServer((req, res) => {
 });
 
 setInterval(() => {
-  const now = Date.now();
   for (const [id, data] of store.entries()) {
-    if (now > data.expireAt) {
+    if (isExpired(data.expireAt)) {
       store.delete(id);
     }
   }
