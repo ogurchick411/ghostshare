@@ -428,7 +428,12 @@ if (copyBtn) {
     shareUrlInput.select();
     navigator.clipboard.writeText(shareUrlInput.value);
     copyBtn.innerText = 'Copied!';
-    setTimeout(() => { copyBtn.innerText = 'Copy Link'; }, 2000);
+    
+    setTimeout(() => { 
+      copyBtn.innerText = 'Copy Link'; 
+      shareUrlInput.value = '';
+      resultContainer.classList.add('hidden');
+    }, 2000);
   });
 }
 
