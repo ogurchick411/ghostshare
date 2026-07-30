@@ -10,15 +10,24 @@ export async function generateMasterKey() {
 }
 
 export async function exportKeyToHash(key) {
+  if (!key) throw new Error("Key is required for export");
   const exported = await crypto.subtle.exportKey("raw", key);
   const hashArray = Array.from(new Uint8Array(exported));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 export async function importKeyFromHash(hashString) {
-  const bytes = new Uint8Array(
-    hashString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16))
-  );
+  if (!hashString || typeof hashString !== "string") {
+    throw new Error("Invalid key hash string provided");
+  }
+
+  const matches = hashString.match(/.{1,2}/g);
+  if (!matches || matches.length !== 32) {
+    throw new Error("Invalid key length: expected 256-bit key in hex format");
+  }
+
+  const bytes = new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
+  
   return await crypto.subtle.importKey(
     "raw",
     bytes.buffer,
