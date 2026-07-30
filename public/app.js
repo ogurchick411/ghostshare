@@ -93,6 +93,64 @@ function hideDataInPixels(imageData, messageText) {
   return imageData;
 }
 
+function extractDataFromPixels(imageData) {
+  const pixels = imageData.data;
+  let headerBytes = new Uint8Array(4);
+  let byteIdx = 0;
+  let bitIdx = 0;
+  let currentByte = 0;
+
+  for (let i = 0; i < pixels.length && byteIdx < 4; i++) {
+    if ((i + 1) % 4 === 0) continue;
+
+    const bit = pixels[i] & 1;
+    currentByte = (currentByte << 1) | bit;
+    bitIdx++;
+
+    if (bitIdx === 8) {
+      headerBytes[byteIdx] = currentByte;
+      currentByte = 0;
+      bitIdx = 0;
+      byteIdx++;
+    }
+  }
+
+  const payloadLength = new DataView(headerBytes.buffer).getUint32(0, false);
+  if (payloadLength <= 0 || payloadLength > pixels.length) {
+    throw new Error('No hidden payload found in this image.');
+  }
+
+  const payload = new Uint8Array(payloadLength);
+  byteIdx = 0;
+  bitIdx = 0;
+  currentByte = 0;
+
+  let totalBitsRead = 0;
+  const startBitOffset = 32;
+
+  for (let i = 0; i < pixels.length && byteIdx < payloadLength; i++) {
+    if ((i + 1) % 4 === 0) continue;
+
+    if (totalBitsRead < startBitOffset) {
+      totalBitsRead++;
+      continue;
+    }
+
+    const bit = pixels[i] & 1;
+    currentByte = (currentByte << 1) | bit;
+    bitIdx++;
+
+    if (bitIdx === 8) {
+      payload[byteIdx] = currentByte;
+      currentByte = 0;
+      bitIdx = 0;
+      byteIdx++;
+    }
+  }
+
+  return new TextDecoder().decode(payload);
+}
+
 // Elements for Tabs
 const tabLink = document.getElementById('tab-link');
 const tabHide = document.getElementById('tab-hide');
@@ -107,13 +165,20 @@ const secretInput = document.getElementById('secret-input');
 const ttlSelect = document.getElementById('ttl-select');
 const createBtn = document.getElementById('create-btn');
 
-// Stego Elements
+// Stego Hide Elements
 const stegoInput = document.getElementById('stego-input');
 const imageInput = document.getElementById('image-input');
 const imageLabel = document.getElementById('image-label');
 const clearImageBtn = document.getElementById('clear-image-btn');
 const stegoBtn = document.getElementById('stego-btn');
 const downloadImage = document.getElementById('download-image');
+
+// Stego Extract Elements
+const extractInput = document.getElementById('extract-input');
+const extractLabel = document.getElementById('extract-label');
+const clearExtractBtn = document.getElementById('clear-extract-btn');
+const extractBtn = document.getElementById('extract-btn');
+const extractedOutput = document.getElementById('extracted-output');
 
 const resultContainer = document.getElementById('result-container');
 const stegoResult = document.getElementById('stego-result');
@@ -157,7 +222,7 @@ if (tabLink && tabHide && tabExtract) {
   });
 }
 
-// Image File Picker & Clear logic
+// File Pickers logic
 if (imageInput) {
   imageInput.addEventListener('change', () => {
     if (imageInput.files[0]) {
@@ -173,6 +238,26 @@ if (clearImageBtn) {
     imageInput.value = '';
     imageLabel.innerText = 'Choose PNG Image';
     clearImageBtn.classList.add('hidden');
+  });
+}
+
+if (extractInput) {
+  extractInput.addEventListener('change', () => {
+    if (extractInput.files[0]) {
+      extractLabel.innerText = extractInput.files[0].name;
+      clearExtractBtn.classList.remove('hidden');
+    }
+  });
+}
+
+if (clearExtractBtn) {
+  clearExtractBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    extractInput.value = '';
+    extractLabel.innerText = 'Choose Stego PNG Image';
+    clearExtractBtn.classList.add('hidden');
+    extractedResult.classList.add('hidden');
+    extractedOutput.value = '';
   });
 }
 
@@ -262,6 +347,48 @@ if (stegoBtn) {
       stegoBtn.disabled = false;
       stegoBtn.innerText = 'Process & Download Image';
     }
+  });
+}
+
+if (extractBtn) {
+  extractBtn.addEventListener('click', () => {
+    const file = extractInput.files[0];
+    if (!file) return alert('Select a PNG image to extract secret.');
+
+    extractBtn.disabled = true;
+    extractBtn.innerText = 'Extracting...';
+
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.onload = async () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          const imageData = ctx.getImageData(0, 0, img.width, img.height);
+          const rawString = extractDataFromPixels(imageData);
+          const parsed = JSON.parse(rawString);
+
+          const key = await importKey(parsed.key);
+          const decrypted = await decryptMessage(parsed.payload, key);
+
+          extractedOutput.value = decrypted;
+          extractedResult.classList.remove('hidden');
+        } catch (err) {
+          alert('Failed to extract: ' + err.message);
+        } finally {
+          extractBtn.disabled = false;
+          extractBtn.innerText = 'Extract Secret Message';
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 }
 
