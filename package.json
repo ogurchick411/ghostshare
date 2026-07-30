@@ -15,5 +15,8 @@
     "privacy"
   ],
   "author": "ogurchick411",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  }
 }
