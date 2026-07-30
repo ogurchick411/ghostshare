@@ -116,6 +116,58 @@ textarea {
   margin-bottom: 12px;
 }
 
+.picker-container {
+  background-color: var(--input-bg);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.picker-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.picker-wheels {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 8px;
+}
+
+.picker-col {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ios-select {
+  background: var(--card-bg);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  text-align: center;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
 .file-picker {
   margin-bottom: 12px;
 }
@@ -177,18 +229,6 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-select {
-  width: 100%;
-  background-color: var(--input-bg);
-  border: none;
-  border-radius: 12px;
-  padding: 12px 14px;
-  color: var(--text-primary);
-  font-size: 15px;
-  outline: none;
-  cursor: pointer;
 }
 
 .btn-primary {
