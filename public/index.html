@@ -33,9 +33,25 @@
           </div>
         </div>
 
+        <div id="hide-mode" class="hidden">
+          <textarea id="stego-input" placeholder="Secret text to hide inside image..."></textarea>
+          <div class="file-picker">
+            <input type="file" id="image-input" accept="image/png" class="file-input-hidden">
+            <label for="image-input" class="file-box" id="image-box">
+              <span id="image-label">Choose PNG Image</span>
+              <button type="button" class="clear-file hidden" id="clear-image-btn">&times;</button>
+            </label>
+          </div>
+          <button class="btn-primary" id="stego-btn">Process & Download Image</button>
+        </div>
+
         <div id="result-container" class="result-box hidden">
           <input type="text" id="share-url" readonly />
           <button class="btn-primary" id="copy-btn">Copy Link</button>
+        </div>
+
+        <div id="stego-result" class="result-box hidden">
+          <a id="download-image" class="btn-primary" download="secret.png">Download Stego Image</a>
         </div>
       </div>
 
