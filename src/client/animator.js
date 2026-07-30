@@ -1,33 +1,41 @@
 export function triggerSelfDestructAnimation(containerElement, onComplete) {
+  if (!containerElement) return;
+
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
   const rect = containerElement.getBoundingClientRect();
 
   canvas.width = rect.width;
   canvas.height = rect.height;
-  canvas.style.position = 'absolute';
+  canvas.style.position = 'fixed';
   canvas.style.left = `${rect.left}px`;
   canvas.style.top = `${rect.top}px`;
   canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '9999';
 
   document.body.appendChild(canvas);
   containerElement.style.visibility = 'hidden';
 
-  ctx.fillStyle = '#ff4d4d';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   let opacity = 1.0;
-  const interval = setInterval(() => {
-    opacity -= 0.05;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = opacity;
-    ctx.fillStyle = '#ff4d4d';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let animationFrameId = null;
 
-    if (opacity <= 0) {
-      clearInterval(interval);
+  function render() {
+    opacity -= 0.03;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (opacity > 0) {
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = '#f85149';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      animationFrameId = requestAnimationFrame(render);
+    } else {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       canvas.remove();
-      if (onComplete) onComplete();
+      if (typeof onComplete === 'function') {
+        onComplete();
+      }
     }
-  }, 30);
+  }
+
+  animationFrameId = requestAnimationFrame(render);
 }
