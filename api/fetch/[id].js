@@ -18,10 +18,11 @@ export default async function handler(req, res) {
     }
 
     const noteKey = `note:${id}`;
+ 
     const rawData = await redis.get(noteKey);
 
     if (!rawData) {
-      return res.status(404).json({ error: 'Note not found or expired' });
+      return res.status(404).json({ error: 'This note has been destroyed or expired.' });
     }
  
     await redis.del(noteKey);
